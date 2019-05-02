@@ -1,11 +1,11 @@
 # CODE CREATED BY CARL SCHWARZ 2019
 # THESE ARE CUSTOM FUNCTIONS TO IMPLEMENT BTSPAS FOR TAKU SOCKEYE
 # BTSPAS package information is available at https://github.com/cschwarz-stat-sfu-ca/BTSPAS
-# This function library lives at XYZ
+# This function library lives at https://github.com/cschwarz-stat-sfu-ca/taku
 
 # Source directly from there using:
 #     library(devtools)
-#     devtools::source_url(XYZ)
+#     devtools::source_url("https://raw.githubusercontent.com/cschwarz-stat-sfu-ca/taku/master/FUNCTIONS_BTSPAS_Wrappers.R")
 
 # Note: Running these functions first requires installing and loading BTSPAS:
 # 			library(devtools)

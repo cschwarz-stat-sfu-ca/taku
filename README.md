@@ -4,7 +4,7 @@ Miscellaneaus functions and possibly data used for Taku River project
 
 You can load these using
 
-* source("https://github.com/cschwarz-stat-sfu-ca/taku/blob/master/FUNCTIONS_BTSPAS_Wrappers.R") 
+* devtools::source_url("https://raw.githubusercontent.com/cschwarz-stat-sfu-ca/taku/master/FUNCTIONS_BTSPAS_Wrappers.R") 
 
 if you are online.
 
