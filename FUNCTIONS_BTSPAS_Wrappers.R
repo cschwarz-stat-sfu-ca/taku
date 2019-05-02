@@ -4,8 +4,8 @@
 # This function library lives at XYZ
 
 # Source directly from there using:
-#			library(devtools)
-#			devtools::source_url(XYZ)
+#     library(devtools)
+#     devtools::source_url(XYZ)
 
 # Note: Running these functions first requires installing and loading BTSPAS:
 # 			library(devtools)
