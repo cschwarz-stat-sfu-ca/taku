@@ -414,16 +414,17 @@ BTSPAS_input_from_matrix <- function(sheet, workbook){
   # 
   # Format of the matrix
   #    Row 1. Stat week of recovery (starting second column)
-  #    Column 1. Stat week of release
+  #    Column 1. Stat week of release (numeric)
   #    intersection of stat week of release and recover= # of tags captured
-  #    final row is TOTAL harvest/test fisher INCLUDING all tags
+  #    Then there can be several rows for the total recoveries, test fisheries, etc until
+  #        final row which is TOTAL harvest/test fisher INCLUDING all tags. This MUST BE LABELLED as "CatchTotal" or "Total catch" in column A
   #    final two columns are total recoveries (never used) and total releases.
   # 
   # Stat week of recovery must start at te first stat week of release (yes, many of the first columns will be zero)
   # The last statweek of recovery must be at least as large as the last stat week of release.
   
   # Blanks indicate 0 
-   
+  #browser()
   cat("Extracting matrix from ", workbook, "; sheet:",sheet, "\n")
   # get the stat weeks of releases from the first column
   stat.week.rel <- readxl::read_excel(workbook, 
@@ -444,6 +445,14 @@ BTSPAS_input_from_matrix <- function(sheet, workbook){
   stat.week.rec <- stat.week.rec[ !is.na(stat.week.rec)]
   
   # get the number of releases
+  colA.entries <- readxl::read_excel(workbook, 
+                                     sheet=sheet,
+                                     col_names=FALSE,
+                                     .name_repair="universal",
+                                     range=cellranger::cell_cols("A"))
+  #browser()
+  colA.entries <- colA.entries[!is.na(as.numeric(colA.entries[,1,drop=TRUE])),,drop=TRUE]
+
   n1 <- readxl::read_excel(workbook,
                            sheet=sheet,
                            col_names=FALSE,
@@ -451,6 +460,7 @@ BTSPAS_input_from_matrix <- function(sheet, workbook){
                            range=cellranger::cell_cols(3+length(stat.week.rec)))
   n1 <- as.numeric(n1[,1,drop=TRUE])
   n1 <- n1[ -1]  # drop the first entry
+  n1 <- n1[ 1:length(colA.entries)] # only those rows with numeric statweek
   n1[ is.na(n1)] <- 0  # missing values are assumed to be zero
   n1.df <- data.frame(n1=n1[1:length(stat.week.rel)], rel.index=1:length(stat.week.rel))
   
@@ -463,6 +473,7 @@ BTSPAS_input_from_matrix <- function(sheet, workbook){
                                                  1+length(stat.week.rec))) )
   m2.full[ is.na(m2.full)] <- 0
   m2.full <- as.matrix(m2.full)
+  #browser()
   # Now to compute the reduced recovery matrix  by shifting rows to the left 
   m2.red <- plyr::aaply(cbind(n1.df$rel.index,m2.full), 1, function(x){
         #browser()
@@ -481,11 +492,21 @@ BTSPAS_input_from_matrix <- function(sheet, workbook){
   m2.red <- m2.red[, !remove.left]
   
   # get the total number of recoveries
+  # This is the last row in the spreadsheet. We wil ignore any rows between the
+  # end of the statweeks and the last row
+  colA.entries <- readxl::read_excel(workbook, 
+                                      sheet=sheet,
+                                      col_names=FALSE,
+                                      .name_repair="universal",
+                                      range=cellranger::cell_cols("A"))
+  #browser()
+  colA.entries <- colA.entries[!is.na(colA.entries[,1,drop=TRUE]),,drop=TRUE]
+  last.row <- length(colA.entries)
   n2 <- readxl::read_excel(workbook,
                            sheet=sheet,
                             col_names=FALSE,
                             .name_repair="universal",
-                            range=cellranger::cell_rows(2+length(n1)))
+                            range=cellranger::cell_rows(last.row))
   n2 <- as.numeric(n2[1,,drop=TRUE])
   n2 <- n2[-1] # drop the first column
   n2 <- n2[ 1:length(stat.week.rec)]
