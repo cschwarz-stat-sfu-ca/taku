@@ -178,7 +178,7 @@ BTSPAS_input <- function(recovery, commercial,
 
 fit.BTSPAS <- function( input.data, prefix="BTSPAS", folder=NULL , #GP edit: added folder argument
 						debug=FALSE, increase.iterations.factor=1,
-                        add.ones.at.start=FALSE){
+                        add.ones.at.start=FALSE, add.ones.at.end=add.ones.at.start){
    # many.more.iterations = increase interations by factor of x
    # add.ones.at.start = TRUE. Assumes that first few years of releases had no recoveries
    #           because commercial fishery started later due to small numbers of fish.
@@ -202,13 +202,26 @@ fit.BTSPAS <- function( input.data, prefix="BTSPAS", folder=NULL , #GP edit: add
    # see if we need to add 1 to the first few rows to make the recoveries
    # diagonal
    # browser()
-   # add a 1 to diagonal for every row with u2=2 at start of recoveries
+   # add a 1 to diagonal for every row with no recoveries from any releases at start of recoveries
    if(add.ones.at.start){
-      index.to.add <- (1:nrow(input.data$m2.red))[as.logical(cumprod(input.data$u2.df$u2==0))]
+      total.recaps <- apply(input.data$m2.full,2,sum)
+      index.to.add <- (1:nrow(input.data$m2.red))[as.logical(cumprod(total.recaps==0))]
       input.data$m2.red[index.to.add,1] <- 1
       input.data$m2.full[ cbind(index.to.add, index.to.add)] <- 1
       input.data$n1.df$n1[index.to.add]<- ifelse(input.data$n1.df$n1[index.to.add]==0,1,input.data$n1.df$n1[index.to.add])
    }
+   
+   # add a 1 to the diagonal for every row with no recoveries from any releases at END of recoveries
+   # The default action is the same as add.ones.at.start, but can be changed
+   if(add.ones.at.end){
+      #browser()
+      total.recaps <- apply(input.data$m2.full,2,sum)[1:nrow(input.data$n1.df)]  # only diagonal elements have 1's added
+      index.to.add <- rev((1:nrow(input.data$m2.red)))[as.logical(cumprod(rev(total.recaps==0)))]
+      input.data$m2.red[index.to.add,1] <- 1
+      input.data$m2.full[ cbind(index.to.add, index.to.add)] <- 1
+      input.data$n1.df$n1[index.to.add]<- ifelse(input.data$n1.df$n1[index.to.add]==0,1,input.data$n1.df$n1[index.to.add])
+   }
+   
    #write out a csv file with the releases and recoveries in one giant data frame
    #browser()
    n1.df.copy <- input.data$n1.df
@@ -295,7 +308,7 @@ fit.BTSPAS <- function( input.data, prefix="BTSPAS", folder=NULL , #GP edit: add
 
 fit.BTSPAS.dropout <- function( input.data, prefix="BTSPAS", folder=NULL , #GP edit: added folder argument
 								debug=FALSE, n, dropout,
-                                add.ones.at.start=FALSE){
+                                add.ones.at.start=FALSE, add.ones.at.end=add.ones.at.start){
    # takes the input data created earlier and fits the BTSPAS model
    # add.ones.at.start = TRUE. Assumes that first few years of releases had no recoveries
    #           because commercial fishery started later due to small numbers of fish.
@@ -320,12 +333,23 @@ fit.BTSPAS.dropout <- function( input.data, prefix="BTSPAS", folder=NULL , #GP e
    # browser()
    # add a 1 to diagonal for every row with u2=2 at start of recoveries
    if(add.ones.at.start){
-      index.to.add <- (1:nrow(input.data$m2.red))[as.logical(cumprod(input.data$u2.df$u2==0))]
+      total.recaps <- apply(input.data$m2.full,2,sum)
+      index.to.add <- (1:nrow(input.data$m2.red))[as.logical(cumprod(total.recaps==0))]
       input.data$m2.red[index.to.add,1] <- 1
       input.data$m2.full[ cbind(index.to.add, index.to.add)] <- 1
       input.data$n1.df$n1[index.to.add]<- ifelse(input.data$n1.df$n1[index.to.add]==0,1,input.data$n1.df$n1[index.to.add])
    }
   
+   # add a 1 to the diagonal for every row with no recoveries from any releases at END of recoveries
+   # The default action is the same as add.ones.at.start, but can be changed
+   if(add.ones.at.end){
+      #browser()
+      total.recaps <- apply(input.data$m2.full,2,sum)[1:nrow(input.data$n1.df)]  # only diagonal elements have 1's added
+      index.to.add <- rev((1:nrow(input.data$m2.red)))[as.logical(cumprod(rev(total.recaps==0)))]
+      input.data$m2.red[index.to.add,1] <- 1
+      input.data$m2.full[ cbind(index.to.add, index.to.add)] <- 1
+      input.data$n1.df$n1[index.to.add]<- ifelse(input.data$n1.df$n1[index.to.add]==0,1,input.data$n1.df$n1[index.to.add])
+   }
   #write out a csv file with the releases and recoveries in one giant data frame
   #browser()
   n1.df.copy <- input.data$n1.df
