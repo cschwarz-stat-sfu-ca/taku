@@ -284,7 +284,7 @@ fit.BTSPAS <- function( input.data, prefix="BTSPAS", folder=NULL , #GP edit: add
                   logitP.fixed.values=taku.logitP.fixed.values,
                   n.iter=ifelse(debug,1000,20000*increase.iterations.factor), 
                   n.burnin=ifelse(debug,100,1000), n.sims=ifelse(debug,30,500),
-                  InitalSeed=InitialSeed,
+                  InitialSeed=InitialSeed,
                   debug=FALSE
                   )
    # Rename files that were created.
