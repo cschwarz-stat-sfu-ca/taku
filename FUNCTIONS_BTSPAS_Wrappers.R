@@ -16,6 +16,7 @@
 #			library(plyr)
 
 # Version Log
+# 2019-07-04 CS: added InitialSeed to fit.xxx functions which is then passed to the actual fit.
 # 2019-05-01 GP: added some minor tweaks (default label for catch column in BTSPAS_input function, target folder in fit.BTSPAS)
 # 2019-04-29 CS: Added check for n1=0 but ones added. Changed the n1=0 to n1=1.
 # 2019-04-24 CS: Added the "add.ones.at.start" flat to fit.BTSPAS and fit.BTSPAS.dropout functions.
@@ -178,7 +179,8 @@ BTSPAS_input <- function(recovery, commercial,
 
 fit.BTSPAS <- function( input.data, prefix="BTSPAS", folder=NULL , #GP edit: added folder argument
 						debug=FALSE, increase.iterations.factor=1,
-                        add.ones.at.start=FALSE, add.ones.at.end=add.ones.at.start){
+                        add.ones.at.start=FALSE, add.ones.at.end=add.ones.at.start,
+						InitialSeed=ceiling(runif(1,min=0,1000000))){
    # many.more.iterations = increase interations by factor of x
    # add.ones.at.start = TRUE. Assumes that first few years of releases had no recoveries
    #           because commercial fishery started later due to small numbers of fish.
@@ -282,6 +284,7 @@ fit.BTSPAS <- function( input.data, prefix="BTSPAS", folder=NULL , #GP edit: add
                   logitP.fixed.values=taku.logitP.fixed.values,
                   n.iter=ifelse(debug,1000,20000*increase.iterations.factor), 
                   n.burnin=ifelse(debug,100,1000), n.sims=ifelse(debug,30,500),
+                  InitalSeed=InitialSeed,
                   debug=FALSE
                   )
    # Rename files that were created.
@@ -308,7 +311,8 @@ fit.BTSPAS <- function( input.data, prefix="BTSPAS", folder=NULL , #GP edit: add
 
 fit.BTSPAS.dropout <- function( input.data, prefix="BTSPAS", folder=NULL , #GP edit: added folder argument
 								debug=FALSE, n, dropout,
-                                add.ones.at.start=FALSE, add.ones.at.end=add.ones.at.start){
+                add.ones.at.start=FALSE, add.ones.at.end=add.ones.at.start,
+								InitialSeed=ceiling(runif(1,min=0,1000000))){
    # takes the input data created earlier and fits the BTSPAS model
    # add.ones.at.start = TRUE. Assumes that first few years of releases had no recoveries
    #           because commercial fishery started later due to small numbers of fish.
@@ -410,7 +414,8 @@ fit.BTSPAS.dropout <- function( input.data, prefix="BTSPAS", folder=NULL , #GP e
     logitP.fixed.values=taku.logitP.fixed.values,
     n.iter=ifelse(debug,1000,30000), n.burnin=ifelse(debug,100,1000), n.sims=ifelse(debug,30,500),
     marked_available_n=n, marked_available_x=n-dropout,
-    debug=FALSE
+    debug=FALSE,
+    InitialSeed=InitialSeed
   )
   # Rename files that were created.
   
